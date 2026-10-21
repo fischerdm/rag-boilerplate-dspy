@@ -32,3 +32,11 @@ up to 15 per topic for evaluation) since a uniform sample is ~80% `earn`/`acq`.
 LM calls are cached by DSPy, so re-running a script is free.
 
 Building a golden dataset is left for later.
+
+## Good to know
+
+### DSPy and LiteLLM
+- DSPy uses the open-source Python library LiteLLM that lets you call many LLM providers through one interface.
+- The provider/model format (e.g. anthropic/claude-haiku-5-5) and which environment variable holds the key (ANTHROPIC_API_KEY, OPENAI_API_KEY) both come from LiteLLM, not from DSPy.
+- That's why switching models only means changing the DSPY_MODEL string.
+- DSPy builds the prompt from your signature and hands it to LiteLLM, which sends it to the right provider. DSPy never has to deal with each provider's details itself.
