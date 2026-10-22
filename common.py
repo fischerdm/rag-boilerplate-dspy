@@ -36,7 +36,9 @@ class TopicOf(dspy.Signature):
     """Classify a 1987 Reuters newswire article into its topic."""
 
     text: str = dspy.InputField()
-    topic: Literal[tuple(TOPICS)] = dspy.OutputField()
+    # Same as Literal["earn", "acq", ...], the style used in the DSPy tutorials.
+    # Valid at runtime; type checkers only accept values written out literally.
+    topic: Literal[tuple(TOPICS)] = dspy.OutputField()  # pyright: ignore[reportInvalidTypeForm]
 
 
 def metric(example, pred, trace=None):
