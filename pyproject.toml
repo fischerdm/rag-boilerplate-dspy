@@ -1,0 +1,15 @@
+[project]
+name = "dspy-reuters"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "dspy>=3.4.1",
+    "nltk>=3.10.4",
+    "python-dotenv>=1.2.4",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "pandas>=3.0.6",
+]
