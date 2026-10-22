@@ -116,7 +116,19 @@ def load_completion(split: str, single_per_topic: int, max_multi: int | None = N
 
 class AddTopics(dspy.Signature):
     """A 1987 Reuters newswire article is already labeled with some topics.
-    List the other topics that also clearly apply. Return an empty list if none do."""
+    List the other topics that also clearly apply. Return an empty list if none do.
+
+    Topics (Reuters meaning, not the everyday sense of the word):
+    - earn: company earnings, results, dividends, earnings forecasts
+    - acq: mergers and acquisitions, buying or selling companies or stakes in them
+    - crude: crude oil, e.g. oil prices, production, OPEC, exploration
+    - money-fx: foreign exchange and money markets, e.g. exchange rates, currency
+      intervention, central bank money market operations
+    - grain: grain crops and grain markets, e.g. wheat, corn, rice, harvests, tenders
+    - trade: international trade between countries, e.g. trade balances, trade policy,
+      tariffs, trade disputes (not a company buying or selling something)
+    - interest: interest rates, e.g. central bank rates, prime rates, yields
+    """
 
     text: str = dspy.InputField()
     existing_topics: list[str] = dspy.InputField()
