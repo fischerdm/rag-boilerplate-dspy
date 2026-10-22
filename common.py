@@ -154,6 +154,8 @@ def completion_scores(result) -> dict[str, float]:
     """The two numbers to look at, from a `dspy.Evaluate` result.
 
     - recall: share of multi-label articles where the hidden topic is added back.
+    - only_hidden: share of multi-label articles where exactly the hidden topic is added.
+      Recall alone rewards adding many topics; this one does not.
     - addition_rate: share of single-label articles that get any topic added. Neither
       right nor wrong by itself: ~0 means the model never extends, ~1 means it always does.
       Whether the additions are justified needs a manual look.
@@ -162,6 +164,7 @@ def completion_scores(result) -> dict[str, float]:
     single = [(ex, p) for ex, p, _ in result.results if not ex.missing_topics]
     return {
         "recall": sum(ex.missing_topics[0] in added(ex, p) for ex, p in multi) / len(multi),
+        "only_hidden": sum(added(ex, p) == set(ex.missing_topics) for ex, p in multi) / len(multi),
         "addition_rate": sum(bool(added(ex, p)) for ex, p in single) / len(single),
     }
 

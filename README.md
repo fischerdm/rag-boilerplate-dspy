@@ -1,11 +1,37 @@
 # rag-boilerplate-dspy
 
-A small project for learning DSPy syntax by classifying Reuters-21578 articles into 7 topics
-(`earn`, `acq`, `crude`, `money-fx`, `grain`, `trade`, `interest`).
+Experimenting with DSPy to fix label-filtered retrieval in a RAG system.
 
-Motivation: in [fastapi-rag-boilerplate](https://github.com/fischerdm/fastapi-rag-boilerplate)
-inferring these labels with an LLM turned out to be hard. Here we check how far DSPy's
-modules and optimizers get.
+## Goal and status
+
+In [fastapi-rag-boilerplate](https://github.com/fischerdm/fastapi-rag-boilerplate), filtering
+retrieval by the topic inferred from the question lowered hit@4 from 96% to 86% on the Reuters-21578
+corpus. One cause is the corpus labels: almost half of the indexed articles (8,666 of 19,043) have
+no topic at all, and related topics such as `money-fx` and `interest` are often only partly assigned.
+
+The idea: let an LLM complete the labels, and treat how eagerly it adds labels as a hyperparameter.
+Adding labels everywhere is the same as not filtering; adding none keeps the incomplete labels.
+
+**Done:**
+
+- Topic classification with `Predict`, `ChainOfThought` and `BootstrapFewShot` (01-03): 95-97% on
+  single-label articles, too easy to separate the modules.
+- Label completion (04-05), on 7 topics. With topic definitions in the signature:
+
+  | | hidden label found | only the hidden label added | single-label articles extended |
+  |---|---|---|---|
+  | `Predict` | 100% | 56% | 94% |
+  | `ChainOfThought` | 88% | 82% | 27% |
+
+  `Predict` adds labels almost everywhere, which comes close to no filtering. `ChainOfThought` is
+  selective. Without topic definitions, `ChainOfThought` extended 56% of single-label articles,
+  mostly by reading `trade` and `interest` in their everyday sense.
+- Of the 8 golden cases the RAG topic filter excluded, label completion would have let 3 through
+  (06); in the others the topic inferred from the question was wrong.
+
+**Next:** rebuild the vector index here, add a DSPy relevance judge and DSPy-generated,
+hand-reviewed broad questions ('Which takeovers were announced in March?') for a golden dataset,
+and tune label completion against end-to-end retrieval accuracy.
 
 ## Setup
 
@@ -24,6 +50,7 @@ cp .env.example .env   # add your API key
 | `03_optimize.py` | `dspy.BootstrapFewShot` / `dspy.MIPROv2`, `save` / `load` |
 | `04_add_topics_predict.py` | label completion: list-valued output field, `dspy.Predict` |
 | `05_add_topics_chain_of_thought.py` | label completion with `dspy.ChainOfThought` |
+| `06_rag_rescue_check.py` | `bool` output field: does a topic apply to an article? |
 
 ```bash
 uv run 01_baseline.py
@@ -32,18 +59,18 @@ uv run 01_baseline.py
 `results.ipynb` shows the results as tables (mistakes, confusion matrix, accuracy per topic).
 In VS Code, open it and select the `.venv` kernel.
 
-Data: single-label articles only, sampled per topic (8 per topic for training,
+Topic classification (01-03): single-label articles only, sampled per topic (8 per topic for training,
 up to 15 per topic for evaluation) since a uniform sample is ~80% `earn`/`acq`.
 LM calls are cached by DSPy, so re-running a script is free.
 
 Label completion (04-05): the model gets an article plus its existing labels and adds
-the missing ones. Reuters labels are incomplete (e.g. `money-fx` and `interest` often belong
-together but are not always both assigned). Evaluated with two numbers: `recall` (one label
-of a multi-label article is hidden; is it added back?) and `addition_rate` (how often
-single-label articles get a label added; those additions need a manual look).
+the missing ones. Evaluated on 138 test articles with three numbers: `recall` (one label
+of a multi-label article is hidden; is it added back?), `only_hidden` (is exactly that label
+added, nothing else?) and `addition_rate` (how often single-label articles get a label added;
+those additions are not wrong by definition and need a manual look).
 Articles without text (only a date) are excluded.
 
-Building a golden dataset is left for later.
+RAG rescue check (06): uses the full Reuters-21578 archive, downloaded to `data/` on first run.
 
 ## Good to know
 
