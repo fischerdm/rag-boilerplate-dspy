@@ -53,5 +53,6 @@ def setup() -> tuple[list[dspy.Example], list[dspy.Example]]:
     return load("training", per_topic=8), load("test", per_topic=15)
 
 
-def evaluator(devset: list[dspy.Example]) -> dspy.Evaluate:
-    return dspy.Evaluate(devset=devset, metric=metric, num_threads=8, display_progress=True)
+def evaluator(devset: list[dspy.Example], display_progress: bool = True) -> dspy.Evaluate:
+    return dspy.Evaluate(devset=devset, metric=metric, num_threads=8,
+                         display_progress=display_progress)

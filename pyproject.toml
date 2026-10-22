@@ -7,3 +7,9 @@ dependencies = [
     "nltk>=3.10.4",
     "python-dotenv>=1.2.4",
 ]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "pandas>=3.0.6",
+]

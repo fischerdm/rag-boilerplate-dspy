@@ -27,6 +27,9 @@ cp .env.example .env   # add your API key
 uv run 01_baseline.py
 ```
 
+`results.ipynb` shows the results as tables (mistakes, confusion matrix, accuracy per topic).
+In VS Code, open it and select the `.venv` kernel.
+
 Data: single-label articles only, sampled per topic (8 per topic for training,
 up to 15 per topic for evaluation) since a uniform sample is ~80% `earn`/`acq`.
 LM calls are cached by DSPy, so re-running a script is free.
