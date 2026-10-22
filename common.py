@@ -162,6 +162,14 @@ def setup_completion() -> tuple[list[dspy.Example], list[dspy.Example]]:
             load_completion("test", single_per_topic=10))
 
 
+def print_additions(result) -> None:
+    """The topics added to single-label articles: the candidates for manual review."""
+    for ex, p, _ in result.results:
+        if not ex.missing_topics and added(ex, p):
+            headline = ex.text.strip().splitlines()[0][:70]
+            print(f"{ex.fileid:12} {ex.existing_topics[0]:9} +{sorted(added(ex, p))}  {headline}")
+
+
 def completion_evaluator(devset: list[dspy.Example], display_progress: bool = True) -> dspy.Evaluate:
     """Runs the program on devset; its printed score is the strict metric, see `completion_scores`."""
     return dspy.Evaluate(devset=devset, metric=completion_metric, num_threads=8,

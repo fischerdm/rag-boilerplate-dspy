@@ -22,6 +22,8 @@ cp .env.example .env   # add your API key
 | `01_baseline.py` | `dspy.Predict`, `dspy.inspect_history`, `dspy.Evaluate` |
 | `02_chain_of_thought.py` | `dspy.ChainOfThought` (adds a `reasoning` field) |
 | `03_optimize.py` | `dspy.BootstrapFewShot` / `dspy.MIPROv2`, `save` / `load` |
+| `04_add_topics_predict.py` | label completion: list-valued output field, `dspy.Predict` |
+| `05_add_topics_chain_of_thought.py` | label completion with `dspy.ChainOfThought` |
 
 ```bash
 uv run 01_baseline.py
@@ -33,6 +35,13 @@ In VS Code, open it and select the `.venv` kernel.
 Data: single-label articles only, sampled per topic (8 per topic for training,
 up to 15 per topic for evaluation) since a uniform sample is ~80% `earn`/`acq`.
 LM calls are cached by DSPy, so re-running a script is free.
+
+Label completion (04-05): the model gets an article plus its existing labels and adds
+the missing ones. Reuters labels are incomplete (e.g. `money-fx` and `interest` often belong
+together but are not always both assigned). Evaluated with two numbers: `recall` (one label
+of a multi-label article is hidden; is it added back?) and `addition_rate` (how often
+single-label articles get a label added; those additions need a manual look).
+Articles without text (only a date) are excluded.
 
 Building a golden dataset is left for later.
 
